@@ -1,30 +1,41 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div class="container mx-auto mt-4">
+    <h1 class="is-size-3 has-text-centered p-2 has-text-weight-bold">
+      Your todo list
+    </h1>
+    <div v-if="loading">
+      <h3 class="has-text-centered mt-4">Loading...</h3>
+    </div>
+    <div v-else>
+      <p class="has-text-centered mt-2">
+        {{ completedCount }} of {{ totalCount }} completed.
+      </p>
+      <TaskList/>
+    </div>
   </div>
-  <router-view/>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { computed, defineComponent, onMounted } from 'vue'
+import TaskList from './components/Task-list.vue'
+import { useStore } from './store'
+import { ActionTypes } from './store/actions'
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+export default defineComponent({
+  components: {
+    TaskList
+  },
+  setup () {
+    const store = useStore()
+    const loading = computed(() => store.state.loading)
+    onMounted(() => store.dispatch(ActionTypes.GetTaskItems))
+    const completedCount = computed(() => store.getters.completedTaskCount)
+    const totalCount = computed(() => store.getters.totalTaskCount)
+    return { loading, completedCount, totalCount }
   }
-}
+})
+</script>
+
+<style lang="scss">
+  @import '~bulma/css/bulma.css';
 </style>
